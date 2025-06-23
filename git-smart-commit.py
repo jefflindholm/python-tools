@@ -31,6 +31,7 @@
 # print("Committed changes to repo.")
 
 import os
+import re
 import sys
 import git
 from mistralai import Mistral
@@ -67,8 +68,22 @@ def generate_commit_message(diff):
 # Generate commit message
 commit_message = generate_commit_message(diff_text)
 print("-------------------------------")
+
+index1 = commit_message.find("```")
+if index1 != -1:
+    index2 = commit_message.find("```", index1 + 1)
+    print("Index of second code block:", index2)
+    if index2 != -1:
+        commit_message = commit_message[index1+3:index2]
+    else:
+        print("Second code block not found.")
+
 print("Suggested commit message:", commit_message)
 
-# Commit with the generated message
+if (len(sys.argv) > 2 and sys.argv[2] == "--no-commit"):
+    print("Skipping commit due to --no-commit flag.")
+    sys.exit(0)
+
+# Commit with the generated messagegity
 repo.git.commit('-m', commit_message)
 print("Committed changes to repo.")
